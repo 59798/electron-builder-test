@@ -1,0 +1,49 @@
+# http://teppeis.hatenablog.com/entry/2015/04/recent-travis-yml
+sudo: false
+
+# https://github.com/develar/onshape-desktop-shell/blob/master/.travis.yml
+# http://qiita.com/oniatsu/items/98851e0463dfe83f04b0#travisyml
+language: objective-c
+cache:
+  directories:
+    - node_modules
+    - app/node_modules
+    - $HOME/.electron
+before_install:
+  - git clone https://github.com/creationix/nvm.git .nvm
+  - source .nvm/nvm.sh
+install:
+  - nvm install 6
+  - nvm use --delete-prefix 6
+  - if [[ `npm -v` != 3* ]]; then npm i -g npm@3; fi
+  - npm --version && node --version
+  - npm install
+  - npm prune
+script:
+  - npm test
+
+before_deploy:
+  - brew update
+  - brew install wine mono
+  - npm run build
+  - export DIST_DMG="$(ls dist/*darwin*/*.dmg)"
+  - export DIST_EXE="$(ls dist/win/*.exe)"
+  - export DIST_EXE_32="$(ls dist/win-ia32/*.exe)"
+  - echo "deploying $DIST_DMG, $DIST_EXE, $DIST_EXE_32 to GitHub releases"
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: PZp/1Xe3ZJ0TTYTkyeQ5wgWfzADlfcD+r+vqaiI1wXuNyeRDJDdMpBRjfYZzo0XWReoLWbBra+s/N5HCiXL3PIOaVUJNZ+A9OmlvMqPnPm8tl/0SQFyPgoB/+11QQS+wv+EfDZshiEJjFPGSUGSGHYlxkTA9edRI7zCUdIdLyUmDPeIF8VgCKb4b+MvUCx5Me3CgDfqv9ddek8HMd1lq5RB7P8HajUgwIQS1Su8OkCjERHnvCQR/rwWd/4RI4PxusUGm3wfZlYcDClgNsxycviYD9SMj4hPWDuSuWydVLrUxGCPEZ08TGDFIuSTKW+egdouSEoUC0NSVP1r9kIbQ9jlXd1X38HmtDydtuDe+CvNwe2v3x57gZXHiTbixiw0zxhG5Zhr1ix3AssXDJ1TnNwRjCIY3MTorY8NZAnfRV9UtVZhfU1Ke/toyNWqoacvEghYc8zkeR1nQZcjQx2FT8o1kQCMa7Kxu/D4NaEHUcjW0eooJWnzfVAUQSpfCgWYRZwzWxz7+ZduJLEIZCcTXmQMVA8qsfmS1BzZbL3vKyhV9sa6tJCKkQgrOfLOzLt7ZulyJrWKzn3g/Gb81VYkbqVZSz/bIqlsc+0bPlQr26Ej8ZEmRiRdnCXSakISpBk5Tkf+ye1qOfYkYjCPnEKgyb/YG9IXTWMTNRMr20BJUZks=
+  # http://stackoverflow.com/questions/25929225/how-to-deploy-to-github-with-file-pattern-on-travis
+  file_glob: true
+  file:
+    - "${DIST_DMG}"
+    - "${DIST_EXE}"
+    - "${DIST_EXE_32}"
+  on:
+    tags: true
+    repo: 59798/electron-builder-test
+branches:
+  only:
+    - "/^v\\d+\\.\\d+\\.\\d+$/"

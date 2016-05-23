@@ -1,0 +1,43 @@
+{
+  "private": true,
+  "scripts": {
+    "postinstall": "install-app-deps",
+    "prebuild": "npm run compile",
+    "build": "rimraf dist && build --platform win32 --platform darwin --arch all",
+    "compile": "babel src -d app/lib"
+  },
+  "build": {
+    "app-bundle-id": "test.berabou.me",
+    "app-category-type": "public.app-category.entertainment",
+    "osx": {
+      "contents": [
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 220,
+          "type": "file"
+        }
+      ]
+    }
+  },
+  "devDependencies": {
+    "babel-cli": "^6.9.0",
+    "babel-eslint": "^6.0.4",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-transform-object-assign": "^6.8.0",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-stage-1": "^6.5.0",
+    "electron-builder": "^3.25.0",
+    "electron-prebuilt": "^1.1.1",
+    "eslint": "^2.10.2",
+    "eslint-config-airbnb-base": "^3.0.1",
+    "eslint-plugin-async-await": "^0.0.0",
+    "eslint-plugin-import": "^1.8.0",
+    "rimraf": "^2.5.2"
+  }
+}
